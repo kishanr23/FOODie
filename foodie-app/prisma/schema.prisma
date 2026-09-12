@@ -1,0 +1,602 @@
+// ─── FOODie Database Schema ───
+// Social Food & Vibe Discovery Platform
+// PostgreSQL via Supabase + Prisma ORM
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ════════════════════════════════════════════
+// AUTH & USERS
+// ════════════════════════════════════════════
+
+model User {
+  id            String   @id @default(uuid()) @db.Uuid
+  email         String   @unique
+  passwordHash  String   @map("password_hash")
+  role          UserRole @default(USER)
+  status        UserStatus @default(ACTIVE)
+  emailVerified Boolean  @default(false) @map("email_verified")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  profile       Profile?
+  creatorProfile CreatorProfile?
+  posts         Post[]
+  visits        Visit[]
+  comments      Comment[]
+  likes         Like[]
+  saves         Save[]
+  collections   Collection[]
+  followers     Follow[] @relation("following")
+  following     Follow[] @relation("follower")
+  reports       Report[] @relation("reporter")
+  reportsAgainst Report[] @relation("reportedUser")
+  notifications Notification[]
+  adminActions  AdminAction[]
+  refreshTokens RefreshToken[]
+
+  @@map("users")
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid()) @db.Uuid
+  token     String   @unique
+  userId    String   @map("user_id") @db.Uuid
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("refresh_tokens")
+}
+
+model Profile {
+  id          String  @id @default(uuid()) @db.Uuid
+  userId      String  @unique @map("user_id") @db.Uuid
+  username    String  @unique
+  displayName String  @map("display_name")
+  bio         String? @db.Text
+  avatarUrl   String? @map("avatar_url")
+  cityId      String? @map("city_id") @db.Uuid
+  isPublic    Boolean @default(true) @map("is_public")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  city City? @relation(fields: [cityId], references: [id])
+
+  @@index([username])
+  @@index([cityId])
+  @@map("profiles")
+}
+
+model CreatorProfile {
+  id           String  @id @default(uuid()) @db.Uuid
+  userId       String  @unique @map("user_id") @db.Uuid
+  tagline      String? @db.VarChar(200)
+  websiteUrl   String? @map("website_url")
+  instagramUrl String? @map("instagram_url")
+  isVerified   Boolean @default(false) @map("is_verified")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("creator_profiles")
+}
+
+enum UserRole {
+  USER
+  CREATOR
+  ADMIN
+}
+
+enum UserStatus {
+  ACTIVE
+  SUSPENDED
+  BANNED
+  DELETED
+}
+
+// ════════════════════════════════════════════
+// GEOGRAPHY
+// ════════════════════════════════════════════
+
+model City {
+  id        String   @id @default(uuid()) @db.Uuid
+  name      String
+  slug      String   @unique
+  state     String?
+  country   String   @default("India")
+  latitude  Float
+  longitude Float
+  isActive  Boolean  @default(true) @map("is_active")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  profiles Profile[]
+  places   Place[]
+
+  @@index([slug])
+  @@map("cities")
+}
+
+// ════════════════════════════════════════════
+// PLACES
+// ════════════════════════════════════════════
+
+model Place {
+  id           String      @id @default(uuid()) @db.Uuid
+  name         String
+  slug         String
+  description  String?     @db.Text
+  address      String
+  cityId       String      @map("city_id") @db.Uuid
+  latitude     Float
+  longitude    Float
+  categoryId   String      @map("category_id") @db.Uuid
+  priceLevel   Int?        @map("price_level") @db.SmallInt // 1-4
+  openingHours Json?       @map("opening_hours")
+  phone        String?     @db.VarChar(20)
+  websiteUrl   String?     @map("website_url")
+  instagramUrl String?     @map("instagram_url")
+  coverImageUrl String?    @map("cover_image_url")
+  status       PlaceStatus @default(ACTIVE)
+  source       String?     @default("manual") // manual, seed, claimed
+  claimedBy    String?     @map("claimed_by") @db.Uuid
+  createdAt    DateTime    @default(now()) @map("created_at")
+  updatedAt    DateTime    @updatedAt @map("updated_at")
+
+  city      City          @relation(fields: [cityId], references: [id])
+  category  PlaceCategory @relation(fields: [categoryId], references: [id])
+  cuisines  PlaceCuisine[]
+  vibes     PlaceVibe[]
+  posts     Post[]
+  visits    Visit[]
+  saves     Save[]
+  collectionPlaces CollectionPlace[]
+  reports   Report[]
+
+  @@unique([slug, cityId])
+  @@index([cityId])
+  @@index([categoryId])
+  @@index([latitude, longitude])
+  @@index([status])
+  @@index([createdAt])
+  @@map("places")
+}
+
+model PlaceCategory {
+  id        String   @id @default(uuid()) @db.Uuid
+  name      String   @unique
+  slug      String   @unique
+  icon      String?  // Lucide icon name
+  sortOrder Int      @default(0) @map("sort_order")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  places Place[]
+
+  @@map("place_categories")
+}
+
+model Cuisine {
+  id        String   @id @default(uuid()) @db.Uuid
+  name      String   @unique
+  slug      String   @unique
+  createdAt DateTime @default(now()) @map("created_at")
+
+  places PlaceCuisine[]
+
+  @@map("cuisines")
+}
+
+model PlaceCuisine {
+  placeId   String @map("place_id") @db.Uuid
+  cuisineId String @map("cuisine_id") @db.Uuid
+
+  place   Place   @relation(fields: [placeId], references: [id], onDelete: Cascade)
+  cuisine Cuisine @relation(fields: [cuisineId], references: [id], onDelete: Cascade)
+
+  @@id([placeId, cuisineId])
+  @@map("place_cuisines")
+}
+
+enum PlaceStatus {
+  ACTIVE
+  CLOSED
+  PENDING
+  HIDDEN
+}
+
+// ════════════════════════════════════════════
+// VIBES
+// ════════════════════════════════════════════
+
+model Vibe {
+  id        String   @id @default(uuid()) @db.Uuid
+  name      String   @unique
+  slug      String   @unique
+  emoji     String?  @db.VarChar(10)
+  color     String?  @db.VarChar(7) // hex
+  sortOrder Int      @default(0) @map("sort_order")
+  isActive  Boolean  @default(true) @map("is_active")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  placeVibes PlaceVibe[]
+  postVibes  PostVibe[]
+
+  @@index([slug])
+  @@map("vibes")
+}
+
+model PlaceVibe {
+  placeId String @map("place_id") @db.Uuid
+  vibeId  String @map("vibe_id") @db.Uuid
+  count   Int    @default(1) // how many users tagged this vibe
+
+  place Place @relation(fields: [placeId], references: [id], onDelete: Cascade)
+  vibe  Vibe  @relation(fields: [vibeId], references: [id], onDelete: Cascade)
+
+  @@id([placeId, vibeId])
+  @@map("place_vibes")
+}
+
+// ════════════════════════════════════════════
+// VISITS & VERIFICATION
+// ════════════════════════════════════════════
+
+model Visit {
+  id               String             @id @default(uuid()) @db.Uuid
+  userId           String             @map("user_id") @db.Uuid
+  placeId          String             @map("place_id") @db.Uuid
+  verificationStatus VerificationStatus @default(PENDING) @map("verification_status")
+  visitedAt        DateTime           @default(now()) @map("visited_at")
+  createdAt        DateTime           @default(now()) @map("created_at")
+
+  user         User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  place        Place             @relation(fields: [placeId], references: [id], onDelete: Cascade)
+  verification VisitVerification?
+  rating       Rating?
+  post         Post?
+
+  @@index([userId])
+  @@index([placeId])
+  @@index([verificationStatus])
+  @@index([visitedAt])
+  @@map("visits")
+}
+
+model VisitVerification {
+  id              String   @id @default(uuid()) @db.Uuid
+  visitId         String   @unique @map("visit_id") @db.Uuid
+  userLatitude    Float    @map("user_latitude")
+  userLongitude   Float    @map("user_longitude")
+  distanceMeters  Float    @map("distance_meters")
+  photoUrl        String?  @map("photo_url")
+  deviceInfo      Json?    @map("device_info")
+  verifiedAt      DateTime? @map("verified_at")
+  rejectionReason String?  @map("rejection_reason")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  visit Visit @relation(fields: [visitId], references: [id], onDelete: Cascade)
+
+  @@map("visit_verifications")
+}
+
+enum VerificationStatus {
+  PENDING
+  VERIFIED
+  SUSPICIOUS
+  REJECTED
+}
+
+// ════════════════════════════════════════════
+// RATINGS
+// ════════════════════════════════════════════
+
+model Rating {
+  id            String @id @default(uuid()) @db.Uuid
+  visitId       String @unique @map("visit_id") @db.Uuid
+  foodRating    Float  @map("food_rating")    // 1-5, 0.5 steps
+  vibeRating    Float  @map("vibe_rating")    // 1-5, 0.5 steps
+  serviceRating Float  @map("service_rating") // 1-5, 0.5 steps
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  visit Visit @relation(fields: [visitId], references: [id], onDelete: Cascade)
+
+  @@map("ratings")
+}
+
+// ════════════════════════════════════════════
+// POSTS & MEDIA
+// ════════════════════════════════════════════
+
+model Post {
+  id        String     @id @default(uuid()) @db.Uuid
+  userId    String     @map("user_id") @db.Uuid
+  placeId   String     @map("place_id") @db.Uuid
+  visitId   String?    @unique @map("visit_id") @db.Uuid
+  caption   String?    @db.Text
+  status    PostStatus @default(ACTIVE)
+  createdAt DateTime   @default(now()) @map("created_at")
+  updatedAt DateTime   @updatedAt @map("updated_at")
+
+  user     User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  place    Place      @relation(fields: [placeId], references: [id], onDelete: Cascade)
+  visit    Visit?     @relation(fields: [visitId], references: [id])
+  media    PostMedia[]
+  vibes    PostVibe[]
+  comments Comment[]
+  likes    Like[]
+  reports  Report[]
+
+  @@index([userId])
+  @@index([placeId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("posts")
+}
+
+model PostMedia {
+  id        String    @id @default(uuid()) @db.Uuid
+  postId    String    @map("post_id") @db.Uuid
+  url       String
+  type      MediaType @default(IMAGE)
+  width     Int?
+  height    Int?
+  sortOrder Int      @default(0) @map("sort_order")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@index([postId])
+  @@map("post_media")
+}
+
+model PostVibe {
+  postId String @map("post_id") @db.Uuid
+  vibeId String @map("vibe_id") @db.Uuid
+
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  vibe Vibe @relation(fields: [vibeId], references: [id], onDelete: Cascade)
+
+  @@id([postId, vibeId])
+  @@map("post_vibes")
+}
+
+enum PostStatus {
+  ACTIVE
+  HIDDEN
+  DELETED
+}
+
+enum MediaType {
+  IMAGE
+  VIDEO
+}
+
+// ════════════════════════════════════════════
+// SOCIAL: COMMENTS, LIKES, SAVES, FOLLOWS
+// ════════════════════════════════════════════
+
+model Comment {
+  id        String        @id @default(uuid()) @db.Uuid
+  userId    String        @map("user_id") @db.Uuid
+  postId    String        @map("post_id") @db.Uuid
+  content   String        @db.VarChar(1000)
+  status    CommentStatus @default(ACTIVE)
+  createdAt DateTime      @default(now()) @map("created_at")
+  updatedAt DateTime      @updatedAt @map("updated_at")
+
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post    Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  reports Report[]
+
+  @@index([postId])
+  @@index([userId])
+  @@index([createdAt])
+  @@map("comments")
+}
+
+enum CommentStatus {
+  ACTIVE
+  HIDDEN
+  DELETED
+}
+
+model Like {
+  userId    String   @map("user_id") @db.Uuid
+  postId    String   @map("post_id") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@id([userId, postId])
+  @@index([postId])
+  @@map("likes")
+}
+
+model Save {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  placeId   String   @map("place_id") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  place Place @relation(fields: [placeId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, placeId])
+  @@index([userId])
+  @@index([placeId])
+  @@map("saves")
+}
+
+model Follow {
+  followerId  String   @map("follower_id") @db.Uuid
+  followingId String   @map("following_id") @db.Uuid
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  follower  User @relation("follower", fields: [followerId], references: [id], onDelete: Cascade)
+  following User @relation("following", fields: [followingId], references: [id], onDelete: Cascade)
+
+  @@id([followerId, followingId])
+  @@index([followerId])
+  @@index([followingId])
+  @@map("follows")
+}
+
+// ════════════════════════════════════════════
+// COLLECTIONS & LISTS
+// ════════════════════════════════════════════
+
+model Collection {
+  id          String   @id @default(uuid()) @db.Uuid
+  userId      String   @map("user_id") @db.Uuid
+  name        String   @db.VarChar(100)
+  description String?  @db.Text
+  coverUrl    String?  @map("cover_url")
+  isPublic    Boolean  @default(false) @map("is_public")
+  isList      Boolean  @default(false) @map("is_list") // creator public list
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  user   User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  places CollectionPlace[]
+
+  @@index([userId])
+  @@index([isPublic])
+  @@map("collections")
+}
+
+model CollectionPlace {
+  collectionId String @map("collection_id") @db.Uuid
+  placeId      String @map("place_id") @db.Uuid
+  note         String? @db.VarChar(500)
+  sortOrder    Int    @default(0) @map("sort_order")
+  addedAt      DateTime @default(now()) @map("added_at")
+
+  collection Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+  place      Place      @relation(fields: [placeId], references: [id], onDelete: Cascade)
+
+  @@id([collectionId, placeId])
+  @@map("collection_places")
+}
+
+// ════════════════════════════════════════════
+// MODERATION & REPORTS
+// ════════════════════════════════════════════
+
+model Report {
+  id           String       @id @default(uuid()) @db.Uuid
+  reporterId   String       @map("reporter_id") @db.Uuid
+  targetType   ReportTarget @map("target_type")
+  targetId     String       @map("target_id") @db.Uuid
+  reason       ReportReason
+  description  String?      @db.Text
+  status       ReportStatus @default(PENDING)
+  resolvedAt   DateTime?    @map("resolved_at")
+  resolvedBy   String?      @map("resolved_by") @db.Uuid
+  createdAt    DateTime     @default(now()) @map("created_at")
+
+  reporter     User     @relation("reporter", fields: [reporterId], references: [id], onDelete: Cascade)
+  reportedUser User?    @relation("reportedUser", fields: [targetId], references: [id], onDelete: Cascade, map: "reports_target_user_fkey")
+  post         Post?    @relation(fields: [targetId], references: [id], onDelete: Cascade, map: "reports_target_post_fkey")
+  comment      Comment? @relation(fields: [targetId], references: [id], onDelete: Cascade, map: "reports_target_comment_fkey")
+  place        Place?   @relation(fields: [targetId], references: [id], onDelete: Cascade, map: "reports_target_place_fkey")
+
+  @@index([targetType, targetId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("reports")
+
+  // Note: targetId is polymorphic — the relation used depends on targetType.
+  // Prisma doesn't natively support polymorphic relations, so we handle this in application logic.
+  // Only one of the optional relations will be valid per row.
+}
+
+enum ReportTarget {
+  POST
+  COMMENT
+  USER
+  PLACE
+  VISIT
+}
+
+enum ReportReason {
+  SPAM
+  FAKE_CONTENT
+  HARASSMENT
+  INAPPROPRIATE
+  INCORRECT_PLACE
+  FRAUDULENT_VISIT
+  PROMOTIONAL
+  OTHER
+}
+
+enum ReportStatus {
+  PENDING
+  REVIEWED
+  RESOLVED
+  DISMISSED
+}
+
+// ════════════════════════════════════════════
+// NOTIFICATIONS
+// ════════════════════════════════════════════
+
+model Notification {
+  id        String           @id @default(uuid()) @db.Uuid
+  userId    String           @map("user_id") @db.Uuid
+  type      NotificationType
+  title     String
+  body      String?          @db.Text
+  data      Json?            // flexible payload (actorId, postId, etc.)
+  isRead    Boolean          @default(false) @map("is_read")
+  createdAt DateTime         @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isRead])
+  @@index([createdAt])
+  @@map("notifications")
+}
+
+enum NotificationType {
+  FOLLOW
+  LIKE
+  COMMENT
+  SAVE_LIST
+  VISIT_VERIFIED
+  SYSTEM
+}
+
+// ════════════════════════════════════════════
+// ADMIN
+// ════════════════════════════════════════════
+
+model AdminAction {
+  id         String   @id @default(uuid()) @db.Uuid
+  adminId    String   @map("admin_id") @db.Uuid
+  action     String   // hide_post, ban_user, reject_visit, etc.
+  targetType String   @map("target_type") // user, post, comment, visit, place
+  targetId   String   @map("target_id") @db.Uuid
+  reason     String?  @db.Text
+  metadata   Json?
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  admin User @relation(fields: [adminId], references: [id])
+
+  @@index([adminId])
+  @@index([targetType, targetId])
+  @@index([createdAt])
+  @@map("admin_actions")
+}

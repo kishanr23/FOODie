@@ -1,0 +1,1644 @@
+ANTIGRAVITY MASTER BUILD PROMPT
+PRODUCTION MVP — SOCIAL FOOD & VIBE DISCOVERY PLATFORM
+
+ROLE
+
+You are acting as the lead product engineer, senior full-stack developer, UX/UI designer, security engineer, database architect, QA engineer, and DevOps engineer for this project.
+
+This is NOT a throwaway prototype.
+
+We intend to deploy this application to real users. Build a production-quality MVP with a clean architecture that can evolve into a larger social food-discovery platform. We may shut the product down later if validation fails, but until then it must behave like a real product.
+
+Do not build a fake demo with hardcoded interactions unless explicitly requested. Real authentication, persistent data, media uploads, database operations, user-generated content, search, maps, social interactions, moderation, and verification must be implemented properly.
+
+IMPORTANT OPERATING PRINCIPLE
+
+Do not blindly implement every possible feature. Build the smallest production MVP that proves the core product thesis:
+
+"Discover places through people and real experiences."
+
+The product sits between:
+- Instagram/TikTok: visual discovery and creators
+- Google Maps: places, maps and location utility
+- Zomato/Swiggy: restaurant discovery and transactional intent
+- Beli/Atly-style products: social/place-based discovery
+
+The product must NOT feel like a food-delivery clone.
+
+==================================================
+1. PRODUCT VISION
+==================================================
+
+Build a social discovery platform for:
+
+- Restaurants
+- Cafés
+- Bakeries
+- Street food
+- Food trucks
+- Dessert shops
+- Pubs/bars where legally appropriate
+- Rooftops
+- Food events
+- Other food and lifestyle venues
+
+The central concept is:
+
+PEOPLE + CONTENT + PLACES + VIBES
+
+Users discover places through real people and real visits rather than relying only on anonymous aggregate ratings.
+
+A place should become valuable because people actually experience it, document it, rate it and recommend it.
+
+CORE DIFFERENTIATORS
+
+1. Real-visit-oriented content
+2. Vibe-based discovery
+3. Social recommendations
+4. Map-first organization
+5. Separate Food / Vibe / Service ratings
+6. Creator-curated lists
+7. Trust and authenticity
+8. Local-first launch strategy
+
+==================================================
+2. LAUNCH STRATEGY
+==================================================
+
+INITIAL GEOGRAPHY:
+
+Mysuru, Karnataka, India.
+
+Do NOT build the first release as an India-wide or global social network.
+
+The architecture must support expansion later, but the initial product experience should prioritize Mysuru.
+
+The product should eventually support:
+
+Mysuru → Bengaluru → other Indian cities → international expansion.
+
+Do not hard-code Mysuru in the database architecture. Use city/region entities so expansion is possible.
+
+==================================================
+3. TARGET USERS
+==================================================
+
+PRIMARY:
+
+A. Food explorers
+- College students
+- Young professionals
+- Couples
+- Groups of friends
+- Local residents
+- Visitors
+
+B. Food creators
+- Micro-influencers
+- Food bloggers
+- Local Instagram creators
+- Travel/lifestyle creators
+
+SECONDARY:
+
+C. Restaurants/cafés
+- Independent restaurants
+- Cafés
+- New venues
+- Local businesses
+
+For MVP, restaurant-side tooling should remain limited unless required for basic venue claiming/verification.
+
+==================================================
+4. CORE PRODUCT LOOP
+==================================================
+
+The most important loop is:
+
+DISCOVER
+↓
+VIEW PLACE
+↓
+SEE REAL EXPERIENCES
+↓
+SAVE / SHARE
+↓
+VISIT
+↓
+VERIFY VISIT
+↓
+POST EXPERIENCE
+↓
+OTHER USERS DISCOVER IT
+
+The product must make this loop extremely easy.
+
+==================================================
+5. CORE MVP FEATURES
+==================================================
+
+Implement these as real production features.
+
+A. Authentication
+
+Support:
+- Email/password
+- Secure session management
+- Password reset
+- Email verification
+- Logout
+
+Structure the authentication system so OAuth/social login can be added later.
+
+Do not store plaintext passwords.
+
+Use secure password hashing and appropriate session/token practices.
+
+B. USER PROFILE
+
+Each user has:
+- Username
+- Display name
+- Profile photo
+- Bio
+- City
+- Followers
+- Following
+- Saved places
+- Visited places
+- Posts
+- Public lists
+
+Allow users to choose whether their profile is public/private where practical.
+
+C. HOME FEED
+
+A social feed containing:
+- Posts from followed users
+- Posts from creators
+- Relevant local discovery content
+
+Each post may contain:
+- Photo
+- Short video
+- Place
+- Caption
+- Food/vibe/service ratings
+- Vibe tags
+- Visit verification badge
+- Like
+- Comment
+- Save
+- Share
+
+Feed ranking should initially be simple and explainable.
+
+Do NOT build an overly complex AI recommendation engine in v1.
+
+D. EXPLORE
+
+Allow users to discover:
+- Places
+- Posts
+- Creators
+- Vibes
+- Collections/lists
+
+Support:
+- Search
+- Category filters
+- Vibe filters
+- Distance
+- Price range
+- Cuisine
+- Occasion
+- Open now where reliable data exists
+
+E. MAP
+
+Build an interactive map.
+
+Use a production-suitable mapping stack with a cost-conscious architecture.
+
+Prefer MapLibre/OpenStreetMap-compatible infrastructure unless the existing project requires another provider.
+
+Do not introduce unnecessary paid dependencies.
+
+Map should support:
+- Current/selected area
+- Place markers
+- Place clustering
+- Vibe filtering
+- Place previews
+- Navigation to place
+- Saved places
+- Visited places
+- Search results
+
+Do not expose a user's exact location publicly.
+
+F. PLACE PAGE
+
+Every venue gets a canonical place page.
+
+Include:
+
+- Name
+- Photos
+- Address
+- Map
+- Category
+- Cuisine
+- Price level
+- Opening hours if available
+- Website/social links where available
+- Vibe tags
+- Food rating
+- Vibe rating
+- Service rating
+- Verified visit count
+- Recent verified experiences
+- Creator recommendations
+- User posts
+- Save
+- Share
+- Directions
+
+Never reduce Food/Vibe/Service into only one aggregate score.
+
+G. VIBE SYSTEM
+
+Create a structured taxonomy.
+
+Initial examples:
+
+- Quiet & WFH
+- First Date
+- Late Night
+- Budget Eats
+- Rooftop
+- Family Friendly
+- Group Hangout
+- Live Music
+- Romantic
+- Study Friendly
+- Instagrammable
+- Quick Bite
+- Hidden Gem
+- Outdoor Seating
+
+The taxonomy must be stored as data, not hard-coded into UI components.
+
+Design it so new vibes can be added later.
+
+H. RATINGS
+
+Every verified visit can contain:
+
+Food: 1–5
+Vibe: 1–5
+Service: 1–5
+
+Allow half-point increments.
+
+Do not create a single mandatory overall star rating.
+
+Ratings must be associated with a visit.
+
+Display aggregate category ratings only after there is sufficient data.
+
+Avoid presenting tiny sample sizes as authoritative.
+
+I. SAVES AND COLLECTIONS
+
+Users can:
+- Save a place
+- Remove a save
+- Create collections
+- Add places to collections
+
+Examples:
+- Date night
+- Mysuru cafés
+- Places to try
+- Best breakfast
+- Study spots
+- Weekend plans
+
+Collections can optionally be public.
+
+J. CREATOR LISTS
+
+Creators/users can create public lists such as:
+
+"My Mysuru Café Picks"
+"Best Date Spots"
+"Hidden Food Gems"
+
+A public list should have:
+- Cover
+- Title
+- Description
+- Creator
+- Places
+- Ordering
+- Shareable URL
+
+The public list should be viewable without authentication where possible.
+
+This is important because creators should be able to share their lists externally through Instagram, WhatsApp, etc.
+
+K. SOCIAL GRAPH
+
+Implement:
+- Follow
+- Unfollow
+- Followers
+- Following
+
+Allow filtering discovery by:
+- People I follow
+- Friends/mutuals
+- Creators
+
+Do not expose sensitive location/activity information.
+
+L. POSTS
+
+Users can create posts attached to a place.
+
+MVP:
+- Photo
+- Caption
+- Place
+- Ratings
+- Vibes
+
+Video support should be implemented if infrastructure permits without destabilizing the MVP. If video significantly increases deployment complexity, architect for it and prioritize photo posts first.
+
+M. COMMENTS
+
+Implement:
+- Add comment
+- Delete own comment
+- Report comment
+
+Moderation-ready structure is required.
+
+N. LIKES
+
+Implement:
+- Like
+- Unlike
+- Like count
+
+Prevent duplicate likes.
+
+O. SHARING
+
+Users can share:
+- Place
+- Post
+- Creator
+- List
+
+Use shareable web URLs.
+
+When native sharing is unavailable, provide copy-link functionality.
+
+==================================================
+6. REAL VISIT VERIFICATION
+==================================================
+
+THIS IS THE MOST IMPORTANT TRUST FEATURE.
+
+A user should not be able to simply click:
+
+"I visited."
+
+Instead create a verification flow.
+
+Possible MVP flow:
+
+1. User opens place page.
+2. User chooses "Log a visit."
+3. Browser requests location permission.
+4. System calculates distance from venue coordinates.
+5. User must be within a configurable radius.
+6. User captures/uploads a photo during the visit.
+7. User submits ratings and note.
+8. Server records visit.
+9. Visit receives a verification state.
+
+Use server-side validation wherever possible.
+
+IMPORTANT:
+
+GPS verification alone is NOT proof of physical presence.
+
+Design the system to reduce abuse:
+- Location radius
+- Timestamp
+- Device/session information
+- Rate limiting
+- Duplicate visit checks
+- Suspicious activity detection
+- Optional photo requirement
+- Server-side validation
+- Future mock-location detection architecture
+
+Do not falsely claim that GPS makes a visit impossible to fake.
+
+For v1, label the system honestly as:
+
+"Location verified"
+
+rather than:
+
+"Impossible to fake."
+
+Create verification states such as:
+
+- pending
+- verified
+- suspicious
+- rejected
+
+Only verified visits should contribute to verified visit statistics/ratings.
+
+==================================================
+7. TRUST MODEL
+==================================================
+
+The platform's central trust principle:
+
+USER-GENERATED EXPERIENCE DATA SHOULD COME FROM PEOPLE WHO ACTUALLY VISITED THE PLACE.
+
+Do NOT scrape:
+- Instagram reviews
+- Google reviews
+- Zomato reviews
+- Random internet reviews
+
+Do NOT import third-party ratings and present them as platform ratings.
+
+However, it is acceptable to obtain basic business/place metadata from legitimate place-data providers, subject to their terms.
+
+External venue metadata may include:
+- Name
+- Coordinates
+- Address
+- Category
+- Opening hours
+- Phone/website where permitted
+
+Platform-generated content must remain distinct.
+
+==================================================
+8. PLACE DATA ARCHITECTURE
+==================================================
+
+Create a canonical Place model.
+
+Suggested fields:
+
+id
+name
+slug
+description
+address
+city_id
+latitude
+longitude
+category
+cuisines
+price_level
+opening_hours
+website_url
+phone
+status
+source
+created_at
+updated_at
+
+Do not make venue names unique globally.
+
+A venue belongs to a geographic city/region.
+
+Create a mechanism for:
+- Duplicate place detection
+- Place merging
+- Place correction
+- Closed venues
+- Claimed venues
+
+==================================================
+9. DATABASE ARCHITECTURE
+==================================================
+
+Use a real relational database.
+
+Preferred:
+PostgreSQL.
+
+Design normalized tables for at least:
+
+users
+profiles
+cities
+places
+place_categories
+cuisines
+vibes
+place_vibes
+visits
+visit_verifications
+ratings
+posts
+post_media
+comments
+likes
+saves
+collections
+collection_places
+follows
+creator_profiles
+reports
+notifications
+admin_actions
+
+Add indexes for:
+- place coordinates
+- city
+- slug
+- username
+- created_at
+- foreign keys
+- common search fields
+
+Use migrations.
+
+Never rely on manual database editing for normal operation.
+
+==================================================
+10. MEDIA STORAGE
+==================================================
+
+Do not store large images/videos directly inside PostgreSQL.
+
+Use object storage.
+
+The abstraction should support:
+- Image uploads
+- Compression
+- Resizing
+- Thumbnails
+- CDN URLs
+- Secure upload
+- File type validation
+- File size limits
+
+Images should be optimized for mobile.
+
+Do not expose internal storage credentials to the client.
+
+==================================================
+11. SEARCH
+==================================================
+
+MVP search must support:
+
+- Place name
+- Cuisine
+- Category
+- Neighborhood
+- Vibe
+- Creator
+- List
+
+Start with PostgreSQL full-text/search indexes if sufficient.
+
+Architect the search service so a dedicated search engine can be introduced later.
+
+Do not build an expensive search infrastructure prematurely.
+
+==================================================
+12. VIBE SEARCH
+==================================================
+
+Users should be able to search conceptually:
+
+"quiet cafe to study"
+
+"good date spot"
+
+"cheap breakfast"
+
+"rooftop for friends"
+
+"late night food"
+
+For v1, use structured filters and tags rather than requiring a sophisticated AI model.
+
+The interface should feel intelligent even if the backend uses taxonomy-based matching.
+
+Later versions can add semantic/AI search.
+
+==================================================
+13. DISCOVERY ALGORITHM
+==================================================
+
+Do not build a black-box recommendation system initially.
+
+Create an explainable ranking model using signals such as:
+
+- Distance
+- Vibe match
+- Saves
+- Verified visits
+- Recent activity
+- Friend/creator interactions
+- Rating confidence
+- Popularity
+- Freshness
+
+Avoid ranking solely by paid placement.
+
+Sponsored content must be clearly labeled.
+
+==================================================
+14. CREATOR EXPERIENCE
+==================================================
+
+Creators should have:
+
+- Creator profile
+- Public lists
+- Posts
+- Follower count
+- Saved/visited places
+- Shareable lists
+- Portfolio-like profile
+
+The product should eventually provide creators with analytics such as:
+
+- List views
+- Saves
+- Place clicks
+- Profile visits
+- Shares
+
+For MVP, implement basic analytics only if it does not substantially delay launch.
+
+==================================================
+15. RESTAURANT/BUSINESS EXPERIENCE
+==================================================
+
+Do not build a full restaurant management suite in v1.
+
+Initially support:
+
+- Venue page
+- Claim/request ownership
+- Basic verification
+- Business contact information
+- Ability to respond to reports/corrections if implemented
+
+Architecture should allow future features:
+
+- Business dashboard
+- Posts
+- Offers
+- Events
+- Analytics
+- Creator campaigns
+- Sponsored placements
+
+Do not let businesses edit verified user ratings.
+
+==================================================
+16. MODERATION AND SAFETY
+==================================================
+
+This is a production application.
+
+Implement reporting for:
+- Post
+- Comment
+- User
+- Place
+- Review/visit
+
+Users should be able to report:
+- Spam
+- Fake content
+- Harassment
+- Inappropriate content
+- Incorrect place
+- Fraudulent visit
+- Promotional manipulation
+
+Create an admin moderation area.
+
+Admin capabilities:
+
+- View reports
+- View reported content
+- Hide content
+- Restore content
+- Suspend user
+- Ban user
+- Mark visit suspicious
+- Manage vibes
+- Manage places
+- Review verification issues
+- Audit moderation actions
+
+Every consequential admin action should be logged.
+
+==================================================
+17. ANTI-SPAM / ANTI-FRAUD
+==================================================
+
+Implement basic protections:
+
+- Rate limits
+- Duplicate detection
+- Like abuse protection
+- Follow abuse protection
+- Comment spam controls
+- Visit frequency limits
+- Suspicious verification patterns
+- Account age/risk signals
+- Report thresholds
+
+Do not attempt to solve fake reviews perfectly in v1.
+
+Build an architecture that can evolve toward fraud detection.
+
+==================================================
+18. PRIVACY
+==================================================
+
+Do not publicly expose exact user location.
+
+Do not display:
+- Live user location
+- Home address
+- Exact visit coordinates
+- Sensitive device information
+
+Store only the minimum location information needed for verification.
+
+Follow privacy-by-design principles.
+
+Provide:
+- Privacy policy route
+- Terms route
+- Account deletion
+- Data export architecture where practical
+
+==================================================
+19. SECURITY
+==================================================
+
+Treat this as a real production application.
+
+Implement:
+
+- Secure authentication
+- Password hashing
+- Authorization checks
+- Input validation
+- Output encoding
+- CSRF protection where applicable
+- XSS protection
+- SQL injection protection
+- Rate limiting
+- Secure file uploads
+- MIME validation
+- File size limits
+- Secrets via environment variables
+- No secrets committed to Git
+- Secure cookies/tokens
+- Server-side permission enforcement
+
+Never trust the client for:
+- User identity
+- Visit verification
+- Rating ownership
+- Admin privileges
+- Place ownership
+- Like counts
+- Follow counts
+
+==================================================
+20. UI / DESIGN SYSTEM
+==================================================
+
+The visual identity should communicate:
+
+FOOD
+LOCAL DISCOVERY
+SOCIAL
+AUTHENTICITY
+VIBE
+
+Avoid making it look like:
+- A generic SaaS dashboard
+- A food delivery app
+- A generic review directory
+- A clone of Instagram
+
+Use a distinctive editorial/local aesthetic.
+
+Typography:
+
+Fraunces for:
+- Headlines
+- Place names
+- Major editorial moments
+
+Manrope for:
+- UI
+- Body
+- Controls
+- Metadata
+
+Initial palette:
+
+--bg-deep: #14201D
+--bg-elevated: #1B2A26
+--ink: #F2EFE6
+--ink-muted: #9AACA4
+--gold: #EDA940
+--chili: #E0563A
+--teal: #3FBFA6
+--violet: #8B6FD1
+--sky: #5AA6D8
+
+Use these consistently but do not force every screen to be dark if a better production UX emerges.
+
+Mobile-first.
+
+Desktop should use responsive layouts rather than simply stretching the mobile interface.
+
+Avoid:
+- Excessive rounded cards
+- Excessive gradients
+- Glassmorphism
+- Generic AI-generated dashboards
+- Excessive shadows
+- All-caps microcopy
+- Unnecessary animations
+
+Use motion intentionally.
+
+Respect:
+prefers-reduced-motion.
+
+Every interactive element requires:
+- Hover state where applicable
+- Active state
+- Focus state
+- Disabled state
+- Loading state
+- Error state where relevant
+
+==================================================
+21. CORE NAVIGATION
+==================================================
+
+Primary mobile navigation:
+
+Home
+Explore
+Map
+Create
+Profile
+
+Adapt if testing reveals a better information architecture, but maintain the five core functions.
+
+==================================================
+22. MAIN SCREENS
+==================================================
+
+Build production versions of:
+
+1. Landing / onboarding
+2. Sign up
+3. Login
+4. Home feed
+5. Explore
+6. Search results
+7. Map
+8. Place preview
+9. Place detail
+10. Log visit
+11. Create post
+12. Post detail
+13. User profile
+14. Creator profile
+15. Followers/following
+16. Saved places
+17. Collections
+18. Public creator list
+19. Notifications
+20. Settings
+21. Report flow
+22. Admin dashboard
+
+Not every screen must be extremely complex in v1, but every core flow must be functional.
+
+==================================================
+23. CREATE / LOG VISIT FLOW
+==================================================
+
+Flow:
+
+Choose place
+↓
+Check location
+↓
+Capture/select photo
+↓
+Rate Food
+↓
+Rate Vibe
+↓
+Rate Service
+↓
+Select vibes
+↓
+Write experience
+↓
+Submit
+↓
+Server validation
+↓
+Verified visit created
+↓
+Post created
+↓
+Place page updated
+
+Show clear progress.
+
+Do not lose user-entered data if a validation error occurs.
+
+==================================================
+24. EMPTY STATES
+==================================================
+
+Empty states are important.
+
+Examples:
+
+No verified visits:
+"No verified visits yet. Be the first to experience this place."
+
+No saved places:
+"Your next favourite place belongs here."
+
+No followers:
+"Find local foodies and creators."
+
+No posts:
+"Real experiences will appear here."
+
+Never fabricate reviews to make a page look populated.
+
+==================================================
+25. NOTIFICATIONS
+==================================================
+
+Implement a basic notification system.
+
+Potential notifications:
+- Someone followed you
+- Someone liked your post
+- Someone commented
+- Someone saved your list
+- Someone interacted with your creator list
+
+Do not create noisy notification behavior.
+
+==================================================
+26. ADMIN PANEL
+==================================================
+
+Admin panel should be functional but visually simple.
+
+Dashboard:
+- Users
+- Places
+- Posts
+- Visits
+- Reports
+- Suspicious activity
+
+Actions:
+- Search
+- Filter
+- View
+- Moderate
+- Suspend
+- Ban
+- Restore
+- Manage place
+- Manage vibes
+
+Protect admin routes with server-side authorization.
+
+==================================================
+27. ANALYTICS
+==================================================
+
+Track product events responsibly.
+
+Initial events:
+
+signup_completed
+profile_completed
+place_viewed
+place_saved
+map_opened
+search_performed
+vibe_selected
+visit_started
+visit_verified
+post_created
+post_liked
+post_commented
+creator_list_viewed
+creator_list_saved
+follow_created
+
+Core product metrics:
+
+Activation:
+User saves 5+ places or logs first verified visit.
+
+Engagement:
+Places viewed
+Places saved
+Visits logged
+Posts created
+
+Retention:
+D1
+D7
+D30
+
+Social:
+Follows
+Shares
+Comments
+
+Creator:
+List views
+List saves
+Profile visits
+
+==================================================
+28. PERFORMANCE
+==================================================
+
+The application must be optimized for mobile networks.
+
+Implement:
+- Lazy loading
+- Image optimization
+- Pagination/infinite loading where appropriate
+- Database indexes
+- Caching where useful
+- API pagination
+- Skeleton loading
+- Optimistic UI only where safe
+
+Do not load every post/place at once.
+
+==================================================
+29. ERROR HANDLING
+==================================================
+
+Every network-dependent action must handle:
+
+- Loading
+- Success
+- Failure
+- Retry
+- Offline/intermittent network where practical
+
+Do not expose raw stack traces to users.
+
+Log errors appropriately on the server.
+
+==================================================
+30. DATA SEEDING
+==================================================
+
+Unlike the earlier prototype specification, production development must use real data structures.
+
+For initial development, create a seed dataset for Mysuru.
+
+Use legitimate public/basic venue information where licensing/terms allow.
+
+Do not create fake reviews and present them as genuine.
+
+If test accounts/content are needed, mark them internally as seed/test content and ensure production users cannot mistake them for genuine community activity.
+
+==================================================
+31. API DESIGN
+==================================================
+
+Use a clean API architecture.
+
+Group endpoints logically:
+
+/auth
+/users
+/profiles
+/places
+/vibes
+/search
+/posts
+/visits
+/ratings
+/comments
+/likes
+/saves
+/collections
+/follows
+/creators
+/notifications
+/reports
+/admin
+
+Validate all request bodies server-side.
+
+Return consistent response formats and meaningful HTTP status codes.
+
+==================================================
+32. ARCHITECTURE
+==================================================
+
+Use a modular architecture.
+
+Separate:
+
+UI
+API/service layer
+Database
+Authentication
+Media
+Search
+Maps
+Verification
+Moderation
+Analytics
+
+Avoid tightly coupling UI components directly to database implementation.
+
+Use reusable components.
+
+Use environment configuration.
+
+Provide a clear README describing:
+
+- Local development
+- Environment variables
+- Database setup
+- Migrations
+- Seed data
+- Running tests
+- Building
+- Deployment
+
+==================================================
+33. DEPLOYMENT
+==================================================
+
+The application must be deployable.
+
+Prefer a cost-conscious production stack.
+
+Do not assume expensive infrastructure.
+
+The final architecture should support:
+- Production domain
+- HTTPS
+- Environment variables
+- Database backups
+- Error logging
+- Media storage
+- CI/CD where practical
+
+Do not hard-code development URLs.
+
+Create separate development and production configuration.
+
+==================================================
+34. TESTING
+==================================================
+
+Implement automated tests for critical backend logic.
+
+At minimum test:
+
+Authentication
+Authorization
+Place creation/retrieval
+Visit verification
+Rating submission
+Post creation
+Like/unlike
+Follow/unfollow
+Save/unsave
+Collection operations
+Report creation
+Admin authorization
+
+Also test critical UI flows.
+
+==================================================
+35. ACCESSIBILITY
+==================================================
+
+Follow reasonable WCAG practices.
+
+Include:
+- Semantic HTML
+- Keyboard navigation
+- Screen-reader labels
+- Sufficient contrast
+- Focus states
+- Accessible forms
+- Error messages
+- Reduced motion
+
+==================================================
+36. PRODUCT RULES
+==================================================
+
+RULE 1:
+Never fabricate user activity.
+
+RULE 2:
+Never present unverified content as verified.
+
+RULE 3:
+Never manipulate ratings to improve venue perception.
+
+RULE 4:
+Never allow restaurants to delete legitimate negative user experiences simply because they are negative.
+
+RULE 5:
+Never expose sensitive user location information.
+
+RULE 6:
+Sponsored placement must be clearly labeled.
+
+RULE 7:
+The map is a discovery tool, not a surveillance tool.
+
+RULE 8:
+The product is about experiences, not only star ratings.
+
+RULE 9:
+Friends and trusted creators should be more meaningful than anonymous popularity.
+
+RULE 10:
+Do not build features merely because competitors have them.
+
+==================================================
+37. WHAT NOT TO BUILD IN V1
+==================================================
+
+Explicitly postpone:
+
+- Food delivery
+- Complex ordering
+- Full restaurant POS integration
+- Large loyalty system
+- Complex token/coin economy
+- Cryptocurrency
+- Advanced AI recommendations
+- Complex AI video generation
+- Multi-country support
+- Massive enterprise restaurant dashboards
+- Excessive gamification
+- Intrusive advertising
+- Complicated booking infrastructure
+
+Reservations may be added later through external/deep-link integrations rather than building a reservation engine from scratch.
+
+==================================================
+38. FUTURE-READY ARCHITECTURE
+==================================================
+
+The architecture should leave room for:
+
+- AI semantic search
+- Personalized recommendations
+- Creator marketplace
+- Restaurant analytics
+- Sponsored vibe placement
+- Reservations
+- Events
+- Loyalty
+- Group planning
+- Social maps
+- Collaborative collections
+- Live crowd signals
+- Dish-level reviews
+- Creator monetization
+
+Do not implement these unless explicitly required for the MVP.
+
+==================================================
+39. MONETIZATION
+==================================================
+
+Do not aggressively monetize the consumer experience at launch.
+
+Architecture should support future:
+
+1. Sponsored vibe placements
+2. Restaurant analytics SaaS
+3. Creator/restaurant marketplace
+4. Affiliate/referral routing
+5. Event promotion
+6. Premium business tools
+
+Sponsored discovery must never silently masquerade as organic recommendations.
+
+==================================================
+40. PRODUCT SUCCESS CRITERIA
+==================================================
+
+The MVP is not successful because:
+- It has many downloads
+- It looks beautiful
+- It has many restaurants listed
+
+The important metrics are:
+
+1. Users save places.
+2. Users return when deciding where to eat.
+3. Users log real visits.
+4. Users trust verified experiences.
+5. Creators create lists.
+6. Creators share those lists externally.
+7. New users arrive through shared place/list links.
+8. Users follow other local food enthusiasts.
+9. The network begins generating organic content.
+
+Critical activation hypothesis:
+
+A new user should be able to discover and save useful places within their first session.
+
+Critical trust hypothesis:
+
+Users should perceive verified-visit experiences as more trustworthy than generic anonymous ratings.
+
+Critical creator hypothesis:
+
+A food creator should see value in having a dedicated map/list portfolio that they can share externally.
+
+==================================================
+41. GO-TO-MARKET
+==================================================
+
+Initial city:
+
+Mysuru.
+
+Initial community:
+
+- College students
+- Young professionals
+- Food enthusiasts
+- 10–20 local food creators
+
+Initial strategy:
+
+Do not attempt to acquire thousands of users immediately.
+
+Seed quality content.
+
+Work directly with local creators.
+
+Create curated lists.
+
+Encourage creators to share public list URLs through Instagram/WhatsApp.
+
+Use these external links to bring users into the product.
+
+==================================================
+42. DEVELOPMENT PROCESS
+==================================================
+
+Before coding:
+
+1. Inspect the entire repository.
+2. Identify current architecture.
+3. Identify existing dependencies.
+4. Identify existing code that can be reused.
+5. Identify environment configuration.
+6. Identify deployment configuration.
+7. Produce a short implementation plan.
+8. Identify any requirement conflicts.
+9. Resolve conflicts in favor of the product principles above.
+
+Do not delete existing work blindly.
+
+Then implement incrementally.
+
+After each major subsystem:
+- Run tests
+- Run lint/type checks
+- Start the app
+- Verify functionality
+
+==================================================
+43. FINAL QA
+==================================================
+
+Before declaring the application ready:
+
+Test as a brand-new user:
+
+Signup
+→ onboarding
+→ explore
+→ search
+→ map
+→ place
+→ save
+→ visit verification
+→ photo
+→ ratings
+→ post
+→ profile
+→ follow another user
+→ like/comment
+→ creator list
+→ share link
+→ logout/login
+
+Test as another user.
+
+Test:
+- Unauthorized actions
+- Invalid input
+- Empty states
+- Mobile viewport
+- Desktop viewport
+- Slow network
+- Failed API request
+- Location denied
+- Location unavailable
+- Photo permission denied
+- Duplicate submissions
+- Spam/reporting
+- Admin access
+
+Fix all critical bugs before completion.
+
+==================================================
+44. IMPORTANT DESIGN QUESTION
+==================================================
+
+Before finalizing any screen ask:
+
+"If I remove the logo and name, does this look like another restaurant directory?"
+
+If yes, redesign it.
+
+The product should immediately communicate:
+
+"These are real people discovering real places."
+
+==================================================
+45. FINAL IMPLEMENTATION PRIORITY
+==================================================
+
+Priority 1:
+Authentication
+Database
+Places
+Map
+Search
+Vibes
+Place pages
+Verified visits
+Ratings
+Posts
+Saves
+
+Priority 2:
+Profiles
+Following
+Feed
+Comments
+Likes
+Collections
+Creator lists
+Sharing
+
+Priority 3:
+Moderation
+Admin
+Notifications
+Analytics
+Business claiming
+
+Priority 4:
+Optimization
+Advanced discovery
+Creator analytics
+Monetization infrastructure
+
+Do not allow lower-priority features to delay the core discovery/visit loop.
+
+==================================================
+46. IMPORTANT: USE THE PROVIDED PRODUCT RESEARCH
+==================================================
+
+The product direction is informed by research indicating a gap between visual discovery platforms and structured map/local discovery platforms.
+
+The research also identifies the cold-start problem as a major risk and recommends a local-first strategy, beginning with utility and gradually adding social network effects.
+
+Therefore:
+
+Do not attempt to manufacture a huge social network immediately.
+
+Build a product that remains useful even when the user has few or no friends on the platform.
+
+The key principle is:
+
+"Come for the discovery utility. Stay for the network."
+
+==================================================
+47. DELIVERABLES
+==================================================
+
+At completion provide:
+
+1. Fully working application
+2. Production-ready project structure
+3. Database schema/migrations
+4. Seed data
+5. API implementation
+6. Authentication
+7. Media upload system
+8. Map integration
+9. Verification flow
+10. Moderation/admin system
+11. Tests
+12. README
+13. Environment variable example
+14. Deployment instructions
+15. List of known limitations
+16. List of future improvements
+
+Do not merely describe these deliverables.
+
+Actually implement them.
+
+==================================================
+FINAL INSTRUCTION
+==================================================
+
+Build the production MVP.
+
+Do not build a mockup.
+
+Do not use fake buttons.
+
+Do not create fake backend behavior.
+
+Do not silently simulate important trust mechanisms.
+
+Do not over-engineer features outside the MVP.
+
+Build a real, deployable, secure, mobile-first product with a strong foundation.
+
+The first question the finished product should answer is:
+
+"Where should I go?"
+
+The second:
+
+"What is the place actually like?"
+
+The third:
+
+"Can I trust the people recommending it?"
+
+And the fourth:
+
+"Can I save it, share it, visit it, and become part of the discovery myself?"
+
+If the product does those four things exceptionally well, the MVP is doing its job.
