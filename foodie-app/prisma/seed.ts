@@ -165,26 +165,59 @@ async function main() {
     }
   }
 
-  // 5. Seed Test User
-  console.log('Seeding test user...');
-  const testEmail = 'test@foodie.local';
-  const existingUser = await prisma.user.findUnique({ where: { email: testEmail } });
+  // 5. Seed Test Users
+  console.log('Seeding test users...');
   
-  if (!existingUser) {
-    const passwordHash = await bcrypt.hash('Password123!', 10);
-    await prisma.user.create({
-      data: {
-        email: testEmail,
-        passwordHash,
-        role: 'ADMIN',
-        profile: {
-          create: {
-            username: 'testuser',
-            displayName: 'Test User',
+  const testUsers = [
+    {
+      email: 'test@foodie.local',
+      password: 'Password123!',
+      role: 'ADMIN',
+      username: 'testuser',
+      displayName: 'Test User (Admin)',
+    },
+    {
+      email: 'admin@foodie.local',
+      password: 'AdminPassword123!',
+      role: 'ADMIN',
+      username: 'admin',
+      displayName: 'Super Admin',
+    },
+    {
+      email: 'support@foodie.local',
+      password: 'SupportPassword123!',
+      role: 'ADMIN',
+      username: 'support',
+      displayName: 'Support Admin',
+    },
+    {
+      email: 'creator@foodie.local',
+      password: 'CreatorPassword123!',
+      role: 'CREATOR',
+      username: 'creator',
+      displayName: 'Foodie Creator',
+    }
+  ] as const;
+
+  for (const tu of testUsers) {
+    const existingUser = await prisma.user.findUnique({ where: { email: tu.email } });
+    if (!existingUser) {
+      const passwordHash = await bcrypt.hash(tu.password, 10);
+      await prisma.user.create({
+        data: {
+          email: tu.email,
+          passwordHash,
+          role: tu.role,
+          profile: {
+            create: {
+              username: tu.username,
+              displayName: tu.displayName,
+            }
           }
         }
-      }
-    });
+      });
+      console.log(`Created user: ${tu.email} (Role: ${tu.role})`);
+    }
   }
 
   console.log('✅ Seeding complete!');
